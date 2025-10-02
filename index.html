@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: url('/background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+    .container {
+      max-width: 700px;
+      margin: 50px auto;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .options button:hover {
+      background-color: #d0e6ff;
+    }
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      margin-top: 10px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    .submit-btn:hover {
+      background-color: #45a049;
+    }
+    .results {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>General Knowledge Quiz</h1>
+  <div id="quiz"></div>
+  <button class="submit-btn" id="submit">Submit</button>
+  <div class="results" id="results"></div>
+  <div class="results" id="participants"></div>
+</div>
+
+<script>
+  // Quiz data
+  const quizData = [
+    {
+      question: "Where is the capital of Delhi?",
+      options: ["Patna", "Kerala", "Mumbai", "Delhi"],
+      answer: "Delhi"
+    },
+    {
+      question: "Who is known as Bapu?",
+      options: ["Gandhi ji", "Nehru", "Rajeev Gandhi", "Bose"],
+      answer: "Gandhi ji"
+    },
+    {
+      question: "Where is Hawa Mahal?",
+      options: ["Jaipur", "Delhi", "Agra", "Mumbai"],
+      answer: "Jaipur"
+    },
+    {
+      question: "Which planet is known as Red Planet?",
+      options: ["Earth", "Mars", "Jupiter", "Venus"],
+      answer: "Mars"
+    }
+  ];
+
+  const quizContainer = document.getElementById('quiz');
+  const submitBtn = document.getElementById('submit');
+  const resultsContainer = document.getElementById('results');
+  const participantsContainer = document.getElementById('participants');
+
+  // Render quiz
+  function renderQuiz() {
+    quizContainer.innerHTML = '';
+    quizData.forEach((q, index) => {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'question';
+      qDiv.innerHTML = `<p>${index + 1}. ${q.question}</p>`;
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'options';
+      q.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.textContent = option;
+        btn.onclick = () => {
+          const selected = optionsDiv.querySelector('.selected');
+          if(selected) selected.classList.remove('selected');
+          btn.classList.add('selected');
+        };
+        optionsDiv.appendChild(btn);
+      });
+      qDiv.appendChild(optionsDiv);
+      quizContainer.appendChild(qDiv);
+    });
+  }
+
+  renderQuiz();
+
+  // Participant counter using localStorage safely
+  function updateParticipants() {
+    if (typeof(Storage) !== "undefined") {
+      // Use a unique key for each participant
+      if (!localStorage.getItem("quiz_participated")) {
+        let count = parseInt(localStorage.getItem("total_participants") || '0', 10);
+        count++;
+        localStorage.setItem("total_participants", count);
+        localStorage.setItem("quiz_participated", "true"); // mark as participated
+      }
+      participantsContainer.textContent = `Total Participants: ${localStorage.getItem("total_participants") || 0}`;
+    } else {
+      participantsContainer.textContent = "Your browser does not support storage.";
+    }
+  }
+
+  updateParticipants();
+
+  // Submit quiz
+  submitBtn.onclick = () => {
+    let score = 0;
+    quizData.forEach((q, index) => {
+      const selectedBtn = quizContainer.children[index].querySelector('.selected');
+      if(selectedBtn && selectedBtn.textContent === q.answer) score++;
+    });
+    resultsContainer.textContent = `You scored ${score} out of ${quizData.length}`;
+    updateParticipants(); // Update participant count on submission
+  }
+</script>
+
+</body>
+    </html>
